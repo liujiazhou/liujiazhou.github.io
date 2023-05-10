@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Windows和Ubuntu双系统的安装与卸载 | MyBlog</title><meta name="keywords" content="Ubuntu,Window"><meta name="author" content="Liujiazhou"><meta name="copyright" content="Liujiazhou"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="准备工作  U盘一个（4G及以上容量 &#x2F; 提前备份好U盘里的资料，后续制作启动盘会格式化U盘）     Ubuntu系统镜像 https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu-releases&#x2F;     Win32 Disk Imager https:&#x2F;&#x2F;sourceforge.net&#x2F;projects&#x2F;win32diskimager&#x2F;">
+<!DOCTYPE html><html lang="zh-CN" data-theme="ight"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Windows和Ubuntu双系统的安装与卸载 | MyBlog</title><meta name="keywords" content="Ubuntu,Window"><meta name="author" content="Liujiazhou"><meta name="copyright" content="Liujiazhou"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="准备工作  U盘一个（4G及以上容量 &#x2F; 提前备份好U盘里的资料，后续制作启动盘会格式化U盘）     Ubuntu系统镜像 https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu-releases&#x2F;     Win32 Disk Imager https:&#x2F;&#x2F;sourceforge.net&#x2F;projects&#x2F;win32diskimager&#x2F;">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Windows和Ubuntu双系统的安装与卸载">
 <meta property="og:url" content="http://liujiazhou.github.io/2022/10/17/Windows%E5%92%8CUbuntu%E5%8F%8C%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E5%8D%B8%E8%BD%BD/index.html">
@@ -132,11 +132,26 @@
       }
       const t = saveToLocal.get('theme')
     
-          const now = new Date()
-          const hour = now.getHours()
-          const isNight = hour <= 6 || hour >= 18
-          if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
-          else if (t === 'light') activateLightMode()
+          const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+          const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+          const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+          const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+          if (t === undefined) {
+            if (isLightMode) activateLightMode()
+            else if (isDarkMode) activateDarkMode()
+            else if (isNotSpecified || hasNoSupport) {
+              const now = new Date()
+              const hour = now.getHours()
+              const isNight = hour <= 6 || hour >= 18
+              isNight ? activateDarkMode() : activateLightMode()
+            }
+            window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+              if (saveToLocal.get('theme') === undefined) {
+                e.matches ? activateDarkMode() : activateLightMode()
+              }
+            })
+          } else if (t === 'light') activateLightMode()
           else activateDarkMode()
         
       const asideStatus = saveToLocal.get('aside-status')
